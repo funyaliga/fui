@@ -1,0 +1,350 @@
+@charset "UTF-8";
+
+// css3
+@mixin prefixer ($name, $value, $prefixes: false) {
+    @if $prefixes {
+        @each $prefix in $prefixes {
+            @if $prefix == webkit {
+                -webkit-#{$name}: $value;
+            }
+            @else if $prefix == moz {
+                -moz-#{$name}: $value;
+            }
+            @else if $prefix == ms {
+                -ms-#{$name}: $value;
+            }
+        }
+    }
+    #{$name}: $value;
+}
+
+// transition
+@mixin transition($val...) {
+    @if length($val) < 1 {
+         $val: all 0.3s ease-out;
+    }
+    @include prefixer(transition, $val, webkit moz);
+}
+@mixin transition-delay($val...) {
+    @if length($val) < 1 {
+         $val: all 0.3s ease-out;
+    }
+    @include prefixer(transition-delay, $val, webkit moz);
+}
+
+
+@mixin transform($val...) {
+    @include prefixer(transform, $val, webkit moz);
+}
+@mixin transform-origin($val...) {
+    @include prefixer(transform-origin, $val, webkit moz);
+}
+
+
+@mixin animation($val...) {
+    @include prefixer(animation, $val, webkit moz);
+}
+@mixin background-image($val...) {
+    @include prefixer(background-image, $val, webkit moz);
+}
+
+
+@mixin keyframes($animation-name) {
+    @-webkit-keyframes $animation-name {
+        @content;
+    }
+    @-moz-keyframes $animation-name {
+        @content;
+    }
+    @-ms-keyframes $animation-name {
+        @content;
+    }
+    @keyframes $animation-name {
+        @content;
+    }
+}
+
+
+
+// box-shadow
+@mixin box-shadow($shadow...) {
+    @if length($shadow) < 1 {
+        $shadow:0 0 4px rgba(0,0,0,.3);
+    }
+    @include prefixer(box-shadow, $shadow, webkit moz);
+}
+@mixin text-shadow($val...) {
+    @include prefixer(text-shadow, $val, webkit moz);
+}
+
+
+@mixin flexbox() {
+    @if $css3Old {
+        display: -webkit-box;
+        display: -moz-box;
+    }
+    @if $css3Ie {
+        display: -ms-flexbox;
+        display: -ms-flex;
+    }
+    @include prefixer(display, flex, webkit moz);
+}
+@mixin flex($val){
+    display: block;
+    @if $css3Old {
+        -webkit-box-flex: $val;
+        -moz-box-flex: $val;
+    }
+    @if $css3Ie {
+        -ms-flex: $val;
+    }
+    @include prefixer(flex, $val, webkit moz);
+}
+@mixin justify-content($val:center){
+    @if $css3Old {
+        -webkit-box-pack: $val;
+    }
+    @include prefixer(justify-content, $val, webkit moz);
+}
+@mixin align-items($val:center){
+    @if $css3Old {
+        -webkit-box-align: $val;
+    }
+    @include prefixer(align-items, $val, webkit moz);
+}
+
+
+
+
+
+/*
+ * 居中
+ * -------------------------
+ */
+@mixin mgCenter($top:0,$bottom:0) {
+	@if $bottom!=$top {
+		margin : $top auto $bottom
+	} @else {
+		margin : $top auto
+	}
+}
+%mgCenter {
+    @include mgCenter;
+}
+
+
+/*
+ * float浮动
+ * -------------------------
+ */
+@mixin float($direction:left) {
+	float : $direction;
+}
+
+/*
+ * 清楚浮动
+ * -------------------------
+ */
+@mixin cf {
+	&:before,
+	&:after {
+		content: "";
+		display: table;
+		overflow: hidden;
+	}
+	&:after {
+		clear: both;
+		display: block;
+		height: 0;
+		visibility: hidden;
+	}
+}
+
+%cf {
+	@include cf;
+}
+
+
+%midCss3{
+	position: relative;
+	top: 50%;
+	left: 50%;
+	@include transform(translateY(-50%));
+}
+
+// flex 居中
+@mixin flex-center($direction: both) {
+    @include flexbox;
+    @if $direction == both {
+        @include justify-content(center);
+        @include align-items(center);
+    }
+    @else if $direction == x {
+        @include justify-content(center);
+    }
+    @else if $direction == y {
+        @include align-items(center);
+    }
+}
+
+/*
+ * 圆
+ * -------------------------
+ */
+@mixin radius($length: 50%, $bg: true) {
+	border-radius: $length;
+	@if $bg{
+		background-clip: padding-box;
+	}
+}
+
+
+
+/*
+ * font字体
+ * -------------------------
+ */
+@mixin font-face($font-family, $file-path, $weight: normal, $style: normal ) {
+  @font-face {
+    font-family: $font-family;
+    font-weight: $weight;
+    font-style: $style;
+    src: url('#{$file-path}.eot'); 											// 1 ie9
+    src: url('#{$file-path}.eot?#iefix')               format('eot'),	 	// 2 ie6-8
+         url('#{$file-path}.svg##{$font-family}')      format('svg'),		// 3
+         url('#{$file-path}.woff')                     format('woff'), 		// 4
+         url('#{$file-path}.ttf')                      format('truetype'); 	// 5 Safari, Android, iOS
+    }
+}
+
+
+/*
+ * 三角
+ * -------------------------
+ */
+%triangle-basic{
+	content:"";
+	height: 0;
+	width: 0;
+	line-height: 0px;
+}
+@mixin triangle($direction, $size, $size2, $borderColor ) {
+	@extend %triangle-basic;
+	@if $direction == top {
+		border-width: 0 $size2 $size $size2;
+		border-color: transparent transparent $borderColor transparent;
+		border-style: dashed dashed solid dashed;
+	}
+	@else if $direction == left {
+		border-width: $size $size $size 0;
+		border-color: transparent $borderColor transparent transparent;
+		border-style: dashed solid dashed dashed;
+	}
+
+	@else if $direction == bottom {
+		border-width: $size $size2 0 $size2;
+		border-color: $borderColor transparent transparent transparent;
+		border-style: solid dashed dashed dashed;
+	}
+	@else if $direction == right {
+		border-width: $size2 0 $size2 $size;
+		border-color: transparent transparent transparent $borderColor;
+		border-style: dashed dashed dashed solid;
+	}
+}
+
+/*
+ * 超过加点点
+ * -------------------------
+ */
+// 块状元素
+%ellipsis{
+	overflow: hidden; /* 内容超出宽度时隐藏超出部分的内容 */
+	text-overflow: ellipsis; /* 当对象内文本溢出时显示省略标记(...)  */
+	white-space: nowrap; /* 不换行 */
+}
+
+// table元素，，用在table上
+%ellipsis-table{
+    table-layout:fixed;
+
+	td{
+		word-break: keep-all; /* 不换行 */
+		@extend %ellipsis;
+	}
+}
+
+// 多行，只支持webkit内核
+@mixin ellipsic($line: 2){
+    display: -webkit-box;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: $line;
+    -webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/*
+ * 变灰
+ * -------------------------
+ */
+@mixin gay($hover: false){
+	// 是否hover后变回彩色 ，默认是false
+	filter: grayscale(100%);
+	-moz-filter: grayscale(100%);
+	-ms-filter: grayscale(100%);
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale");
+	filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+	-webkit-filter: grayscale(100%);
+
+	@if $hover{
+		&:hover{
+			filter: grayscale(0);
+			-moz-filter: grayscale(0);
+			-ms-filter: grayscale(0);
+			filter: url("data:image/svg+xml;utf8");
+			filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=0);
+			-webkit-filter: grayscale(0);
+		}
+	}
+}
+
+/*
+ * transform: translate3d(X, Y, Z)
+ * -------------------------
+ */
+@mixin t3d($x: 0, $y: 0, $z: 0){
+	@include transform(translate3d($x, $y, $z));
+}
+
+
+/*
+ * px转em
+ * -------------------------
+ */
+@function em($px: 16, $base: 16) {
+    @return $px / $base * 1em;
+}
+
+/*
+ * 根号，开方
+ * -------------------------
+ */
+@function sqrt($n, $a: $n/2, $e: .001) {
+	@if $n - $a*$a > $e or $a*$a - $n > $e {
+		@return sqrt($n, ($a + $n/$a)/2, $e);
+	}
+	@else { @return $a; }
+}
+
+/*
+ * 100%
+ * -------------------------
+ */
+@function bai($w: 640, $mw: 640) {
+    @return $w / $mw * 100%;
+}
+
+
+@function re($w: 750) {
+    @return 320 / 750 * $w / 20 * 1rem;
+}
